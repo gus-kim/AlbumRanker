@@ -239,17 +239,19 @@ function showResults() {
 
 async function getAlbumTracks(artist, album) {
     //probably shouldn't use cors-anywhere but idk why it ain't working from ghp
-    const response = await fetch(`https://dork.nathansbud-cors.workers.dev/?https://genius.com/albums/${geniusClean(artist)}/${geniusClean(album)}`)
-    const body = await response.text()
-    console.log(response, body)
-    try {
-        const pageContent = new DOMParser().parseFromString(body, 'text/html')        
-        const className = (pageContent.getElementsByClassName("chart_row-content-title").length > 0) ? ("chart_row-content-title") : ("tracklist_row-header-content-title")
-        const tracks = Array.from(pageContent.getElementsByClassName(className)).map(t => t.textContent.trim().slice(0, -1*("Lyrics").length).trim())
-        console.log(`Tracks: ${tracks}`)
-        return tracks
-    } catch(e) {
-        console.log(e)
+    for(let conf of [{ splitApostrophes: false }, { splitApostrophes: true }]) {        
+        try {
+            const response = await fetch(`https://dork.nathansbud-cors.workers.dev/?https://genius.com/albums/${geniusClean(artist)}/${geniusClean(album, conf)}`)
+            const body = await response.text()
+
+            const pageContent = new DOMParser().parseFromString(body, 'text/html')        
+            const className = (pageContent.getElementsByClassName("chart_row-content-title").length > 0) ? ("chart_row-content-title") : ("tracklist_row-header-content-title")
+            const tracks = Array.from(pageContent.getElementsByClassName(className)).map(t => t.textContent.trim().slice(0, -1*("Lyrics").length).trim())
+            console.log(`Tracks: ${tracks}`)
+            return tracks
+        } catch(e) {
+            console.log(e)
+        }
     }
 
     return []
@@ -285,9 +287,14 @@ async function startApp(artist, album) {
     }
 } 
   
-function geniusClean(fi) {
+function geniusClean(fi, config={splitApostrophes: false}) {
     let splitSet = ["ft.", "feat.", "featuring.", "(with"]
     let replaceSet = {"&":"and", "•":"", "æ":"", "œ":""}
+    
+    // Address bug from random Instagram user
+    if(config.splitApostrophes) {
+        replaceSet["'"] = ""
+    }
         
     Object.entries(replaceSet).forEach(([k, v]) => fi = fi.replace(k, v))
     splitSet.forEach(ss => fi = fi.split(` ${ss} `)[0])
