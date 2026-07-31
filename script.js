@@ -27,8 +27,7 @@
 }(DOMParser))
 
 
-var flexEls = new Set(['bracket', 'results', 'intro', 'loading'])
-var show = (el, val='') => el.style.display = val ? val : (flexEls.has(el.id) ? 'flex' : 'block')
+var show = (el, val='') => el.style.display = val ? val : 'block'
 var hide = (el, actualHide=false) => el.style.display = (!actualHide) ? ('none') : ('hidden')
 
 var formDiv = document.getElementById("intro")
@@ -469,14 +468,14 @@ copyButton.addEventListener('click', function() {
         var li = document.createElement('li')
         var rank = document.createElement('span')
         rank.className = 'srank'
-        rank.textContent = cells[0].textContent
+        rank.textContent = cells[0].textContent + '. '
         var name = document.createTextNode(cells[1].textContent)
         li.appendChild(rank)
         li.appendChild(name)
         shareList.appendChild(li)
     })
 
-    html2canvas(shareCard, { backgroundColor: '#1a1a1a', scale: 3 }).then(function(canvas) {
+    html2canvas(shareCard, { backgroundColor: '#eeeeee', scale: 3 }).then(function(canvas) {
         var link = document.createElement('a')
         link.download = albumName.replace(/[^a-z0-9]/gi, '_') + '_ranking.png'
         link.href = canvas.toDataURL('image/png')

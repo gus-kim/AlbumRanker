@@ -5,88 +5,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Album Track Ranker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script defer src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div id="intro">
-        <form id="album-form" action="javascript:void(0);">
-            <h2>Album Track Ranker</h2>
-            <i><p>made by <a href="https://twitter.com/maybenathansbud">nathansbud</a>, inspired by <a href="https://musicsort.tumblr.com/punisher">musicsort</a></p></i>
-            <div class="form-group">
-                <label for="artist">Artist</label>
-                <input id="artist" name="artist" placeholder="e.g. Feed Me Jack" type="text"/>
-            </div>
-            <div class="form-group">
-                <label for="album">Album</label>
-                <input id="album" name="album" placeholder="e.g. Chumpfrey" type="text"/>
-            </div>
-            <div id="error-message" class="hidden"></div>
-            <input type="submit" value="Start Comparing">
-        </form>
-        <div id="loading" class="hidden">
-            <b><span>Loading Tracks...</span></b>
-            <div class="loading-animation lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-        </div>
+    <form id="album-form" action="javascript:void(0);">
+        <h2>Album Track Ranker</h2>
+        <i><p>made by <a href="https://twitter.com/maybenathansbud">nathansbud</a>, inspired by <a href="https://musicsort.tumblr.com/punisher">musicsort</a></p></i>
+        <label for="artist">Artist</label>
+        <input name="artist" placeholder="e.g. Feed Me Jack" type="text"/><br>
+        <label for="album">Album</label>
+        <input name="album" placeholder="e.g. Chumpfrey" type="text"/><br>
+        <input type="submit" value="Start Comparing">
+    </form>
+    <br>
+    <div id="loading" class="hidden">
+        <b><span>Loading Tracks...</span></b><br>
+        <div class="loading-animation lds-ellipsis"><div></div><div></div><div></div><div></div></div>
     </div>
+    </div>
+    <div id="error-message" class="hidden"></div>
     <div class="hidden" id="bracket">
-        <img class="album-art hidden" alt="Album Cover">
-        <h2 id="battle-title"><i><span class="album-name"></span></i> Song Ranker</h2>
+        <h2 id="battle-title"><i><span class="album-name"></i></span> Song Ranker</h2>
         <p>(<span id="battle-tracks"></span>)</p>
-        <div id="progress-wrap">
-            <span id="progress-text"></span>
-            <div id="progress-bar"><div id="progress-fill"></div></div>
-        </div>
+        <img class="album-art hidden" src="" alt="Album Art">
+        <span id="progress-text">0%</span>
+        <div id="progress-bar"><div id="progress-fill"></div></div>
         <table id="battle-table">
            <tr>
-                <td rowspan="2" class="battle-option" id="battle-left">
-                    <span class="option-text">LeftText</span>
-                    <span class="key-hint">←</span>
-                </td>
-                <td rowspan="2" class="battle-option" id="battle-equal">
-                    <span class="option-text">No Preference</span>
-                    <span class="key-hint">↓</span>
-                </td>
-                <td rowspan="2" class="battle-option" id="battle-right">
-                    <span class="option-text">RightText</span>
-                    <span class="key-hint">→</span>
-                </td>
+                <td rowspan="2" class="battle-option" id="battle-left"><span class="option-text">LeftText</span></td>
+                <td rowspan="2" class="battle-option" id="battle-equal">No Preference</td>
+                <td rowspan="2" class="battle-option" id="battle-right"><span class="option-text">RightText</span></td>
            </tr>
         </table>
-        <div class="button-group">
-            <button id="undo-button" class="hidden">↩ Undo <span class="key-hint">Ctrl+Z</span></button>
-            <button class="restart-button">Restart</button>
-        </div>
+        <p><small>← left &nbsp;|&nbsp; → right &nbsp;|&nbsp; ↓ no preference &nbsp;|&nbsp; Ctrl+Z undo</small></p>
+        <button id="undo-button" class="hidden">Undo</button>
+        <button class="restart-button">Restart</button>
     </div>
     <div class="hidden" id="results">
-        <h2>Your <i><span class="album-name"></span></i> Track Ranking:</h2>
-        <img class="album-art hidden" alt="Album Cover">
+        <h2>Your <i><span class='album-name'></i></span> Track Ranking:</h2>
+        <img class="album-art hidden" src="" alt="Album Art">
         <table id="results-table">
             <tr>
                 <th>#</th>
                 <th>Track Name</th>
             </tr>
         </table>
-        <div class="button-group">
-            <button id="copy-button">Save as Image</button>
-            <button class="restart-button">Restart</button>
+        <br>
+        <div id="share-card" style="position:absolute;left:-9999px;background:#eeeeee;color:#333333;padding:1em;text-align:center;width:400px;">
+            <img id="share-art" class="hidden" src="" alt="" style="width:150px;height:150px;object-fit:cover;display:block;margin:0 auto 0.5em;">
+            <b id="share-album-name"></b><br>
+            <span id="share-artist-name"></span>
+            <ul id="share-tracklist" style="text-align:left;margin-top:0.5em;list-style:none;padding:0;"></ul>
         </div>
-    </div>
-
-    <!-- off-screen card used only for image export -->
-    <div id="share-card">
-        <div id="share-header">
-            <img id="share-art" alt="">
-            <div id="share-info">
-                <div id="share-album-name"></div>
-                <div id="share-artist-name"></div>
-            </div>
-        </div>
-        <ol id="share-tracklist"></ol>
-        <div id="share-footer">albumranker</div>
+        <button id="copy-button">Copy Ranking as Image</button>
+        <button class="restart-button">Restart</button>
     </div>
     <script src="script.js"></script>
 </body>
