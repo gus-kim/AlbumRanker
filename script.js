@@ -326,14 +326,7 @@ async function getAlbumArt(artist, album) {
         const response = await fetch(`https://itunes.apple.com/search?term=${query}&media=music&entity=album&limit=5`)
         const data = await response.json()
         if(data.results && data.results.length > 0) {
-            const url = data.results[0].artworkUrl100.replace('100x100bb', '600x600bb')
-            const imgResponse = await fetch(url)
-            const blob = await imgResponse.blob()
-            return await new Promise(resolve => {
-                const reader = new FileReader()
-                reader.onloadend = () => resolve(reader.result)
-                reader.readAsDataURL(blob)
-            })
+            return data.results[0].artworkUrl100.replace('100x100bb', '600x600bb')
         }
     } catch(e) {
         console.log('Album art fetch failed:', e)
@@ -454,14 +447,6 @@ copyButton.addEventListener('click', function() {
     shareAlbum.textContent = albumName
     shareArtist.textContent = artistName
 
-    if(albumArtUrl) {
-        shareArt.src = albumArtUrl
-        shareArt.classList.remove('hidden')
-    } else {
-        shareArt.src = ''
-        shareArt.classList.add('hidden')
-    }
-
     shareList.innerHTML = ''
     Array.from(resultsTable.querySelectorAll('tr')).slice(1).forEach(function(row) {
         var cells = row.querySelectorAll('td')
@@ -469,17 +454,41 @@ copyButton.addEventListener('click', function() {
         var li = document.createElement('li')
         var rank = document.createElement('span')
         rank.className = 'srank'
-        rank.textContent = cells[0].textContent
+        rank.textContent = cells[0].textContent + '. '
         var name = document.createTextNode(cells[1].textContent)
         li.appendChild(rank)
         li.appendChild(name)
         shareList.appendChild(li)
     })
 
-    html2canvas(shareCard, { backgroundColor: '#1a1a1a', scale: 3 }).then(function(canvas) {
-        var link = document.createElement('a')
-        link.download = albumName.replace(/[^a-z0-9]/gi, '_') + '_ranking.png'
-        link.href = canvas.toDataURL('image/png')
-        link.click()
-    })
+    function renderCanvas() {
+        html2canvas(shareCard, { backgroundColor: '#eeeeee', scale: 3, useCORS: true }).then(function(canvas) {
+            var link = document.createElement('a')
+            link.download = albumName.replace(/[^a-z0-9]/gi, '_') + '_ranking.png'
+            link.href = canvas.toDataURL('image/png')
+            link.click()
+        })
+    }
+
+    if(albumArtUrl) {
+        var img = new Image()
+        img.crossOrigin = 'anonymous'
+        img.onload = function() {
+            var c = document.createElement('canvas')
+            c.width = img.width; c.height = img.height
+            c.getContext('2d').drawImage(img, 0, 0)
+            shareArt.src = c.toDataURL()
+            shareArt.classList.remove('hidden')
+            renderCanvas()
+        }
+        img.onerror = function() {
+            shareArt.classList.add('hidden')
+            renderCanvas()
+        }
+        img.src = albumArtUrl
+    } else {
+        shareArt.src = ''
+        shareArt.classList.add('hidden')
+        renderCanvas()
+    }
 })
