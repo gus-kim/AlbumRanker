@@ -482,25 +482,6 @@ copyButton.addEventListener('click', function() {
         })
     }
 
-    if(albumArtUrl) {
-        var img = new Image()
-        img.crossOrigin = 'anonymous'
-        img.onload = function() {
-            var c = document.createElement('canvas')
-            c.width = img.width; c.height = img.height
-            c.getContext('2d').drawImage(img, 0, 0)
-            shareArt.src = c.toDataURL()
-            shareArt.classList.remove('hidden')
-            renderCanvas()
-        }
-        img.onerror = function() {
-            shareArt.classList.add('hidden')
-            renderCanvas()
-        }
-        img.src = albumArtUrl
-    } else {
-        shareArt.src = ''
-        shareArt.classList.add('hidden')
-        renderCanvas()
-    }
+    shareArt.classList.add('hidden')
+    renderCanvas()
 })
