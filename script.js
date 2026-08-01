@@ -463,10 +463,22 @@ copyButton.addEventListener('click', function() {
 
     function renderCanvas() {
         html2canvas(shareCard, { backgroundColor: '#eeeeee', scale: 3, useCORS: true }).then(function(canvas) {
-            var link = document.createElement('a')
-            link.download = albumName.replace(/[^a-z0-9]/gi, '_') + '_ranking.png'
-            link.href = canvas.toDataURL('image/png')
-            link.click()
+            var filename = albumName.replace(/[^a-z0-9]/gi, '_') + '_ranking.png'
+            if(navigator.share && navigator.canShare) {
+                canvas.toBlob(function(blob) {
+                    var file = new File([blob], filename, { type: 'image/png' })
+                    if(navigator.canShare({ files: [file] })) {
+                        navigator.share({ files: [file] }).catch(function() {})
+                    } else {
+                        window.open(canvas.toDataURL('image/png'))
+                    }
+                })
+            } else {
+                var link = document.createElement('a')
+                link.download = filename
+                link.href = canvas.toDataURL('image/png')
+                link.click()
+            }
         })
     }
 
