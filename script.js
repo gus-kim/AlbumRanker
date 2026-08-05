@@ -44,7 +44,6 @@ var resultsDiv = document.getElementById('results')
 var resultsTable = document.getElementById('results-table')
 var copyButton = document.getElementById('copy-button')
 
-var progressText = document.getElementById('progress-text')
 var progressFill = document.getElementById('progress-fill')
 var undoButton = document.getElementById('undo-button')
 
@@ -62,7 +61,6 @@ var getEqualLength = () => Object.values(equalSet).reduce((acc, v) => acc + v.le
 function updateProgress() {
     var placed = albumRanking.length + getEqualLength()
     var pct = Math.min(Math.round((placed / albumTracks.length) * 100), 99)
-    progressText.textContent = pct + '%'
     progressFill.style.width = pct + '%'
 }
 
@@ -132,7 +130,6 @@ undoButton.addEventListener('click', function() {
     // Update progress display
     var placed = albumRanking.length + getEqualLength()
     var pct = albumTracks.length > 0 ? Math.min(Math.round((placed / albumTracks.length) * 100), 99) : 0
-    progressText.textContent = pct + '%'
     progressFill.style.width = pct + '%'
 
     if(battleHistory.length === 0) undoButton.classList.add('hidden')
@@ -144,9 +141,12 @@ function setAlbumArt(url) {
     albumArtUrl = url
     Array.from(document.getElementsByClassName('album-art')).forEach(img => {
         if(url) {
+            img.classList.add('hidden')
+            img.onload = () => img.classList.remove('hidden')
+            img.onerror = () => img.classList.add('hidden')
             img.src = url
-            img.classList.remove('hidden')
         } else {
+            img.src = ''
             img.classList.add('hidden')
         }
     })
@@ -285,7 +285,6 @@ function processBattle(cArr, winner, loser, equal=false) {
     if(totalLength == albumTracks.length) {
         battleActive = false
         progressFill.style.width = '100%'
-        progressText.textContent = '100%'
         setBattle("--", "--")
         showResults()
     }
@@ -386,7 +385,6 @@ async function startApp(artist, album) {
             albumTracks = shuffle(albumTracks)
 
             battleActive = true
-            progressText.textContent = '0%'
             progressFill.style.width = '0%'
 
             setBattle(albumTracks[0], albumTracks[1])
